@@ -15,22 +15,28 @@ const [signupData,setSignupData]=useState({
 })
 
   const navigate = useNavigate();
-// to add the data in sttae in object when we type in input field
+// to add the data in state in object when we type in input field
 const handleChange=(e)=>{
  console.log(e.target.name,e.target.value);
   setSignupData({...signupData,[e.target.name]:e.target.value})
-
-  const CopySignupData={...signupData}
-  CopySignupData[e.target.name]=e.target.value
-  console.log(CopySignupData);
 }
 
 
  const handleSignup = async (e) => {
         e.preventDefault();
         const { name, email, password } = signupData;
+        console.log('Signup data:', signupData);
+        
         if (!name || !email || !password) {
             return handleError('name, email and password are required')
+        }
+        
+        // Additional validation to match backend requirements
+        if (name.length < 3) {
+            return handleError('Name must be at least 3 characters long')
+        }
+        if (password.length < 6) {
+            return handleError('Password must be at least 6 characters long')
         }
         try {
             const url = `http://localhost:3000/auth/signup`;
@@ -42,6 +48,7 @@ const handleChange=(e)=>{
                 body: JSON.stringify(signupData)
             });
             const result = await response.json();
+            console.log('Signup response:', result);
             const { success, message, error } = result;
             if (success) {
                 handleSuccess(message);
@@ -49,14 +56,14 @@ const handleChange=(e)=>{
                     navigate('/login')
                 }, 1000)
             } else if (error) {
-                const details = error?.details[0].message;
+                const details = error?.details?.[0]?.message || error?.message || 'Validation error';
                 handleError(details);
             } else if (!success) {
-                handleError(message);
+                handleError(message || 'Signup failed');
             }
-            console.log(result);
         } catch (err) {
-            handleError(err);
+            console.error('Signup error:', err);
+            handleError('Network error or server unavailable');
         }
     }
     
@@ -78,7 +85,7 @@ onChange={handleChange} value={signupData.name} />
 
 <label htmlFor="email">Email:</label>
 
-<input type="email" id="email" name="email" placeholder='enter your email....' required onChange={handleChange}value={signupData.email} />
+<input type="email" id="email" name="email" placeholder='enter your email....' required onChange={handleChange} value={signupData.email} />
 
 <label htmlFor="password">Password:</label>
 
@@ -96,4 +103,3 @@ onChange={handleChange} value={signupData.name} />
 }
 
 export default Signup;
-

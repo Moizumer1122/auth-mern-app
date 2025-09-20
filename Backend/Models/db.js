@@ -2,7 +2,7 @@
 // used to connect to MongoDB
 
 const mongoose = require('mongoose');
-const mongo_url = process.env.MONGO_CONN || "mongodb+srv://umerbandesha007@_db_user:*****@cluster0.i5fdbh6.mongodb.net/";
+const mongo_url = process.env.MONGO_CONN || "mongodb://localhost:27017/auth-mern-app";
 
 mongoose.connect(mongo_url, {
 }).then(() => {

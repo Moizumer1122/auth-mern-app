@@ -24,14 +24,14 @@ require('./Models/db'); // Connect to MongoDB
 const cors = require('cors');
 const AuthRouter = require('./Routes/AuthRouter');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000
 
 // Middleware
 app.use(express.json()); // Built-in JSON parser
 app.use(cors());
 
 // Test route
-app.post('/ping', (req, res) => {
+app.get('/ping', (req, res) => {
   res.send('pong');
 });
 
@@ -40,5 +40,5 @@ app.use('/auth', AuthRouter);
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on  localhost:${port}`);
 });

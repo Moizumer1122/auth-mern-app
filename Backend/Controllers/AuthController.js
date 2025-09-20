@@ -12,7 +12,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UserModel = require("../Models/User");
 
-
+// ------------------------- sign up ------------------------
 const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -32,36 +32,45 @@ const signup = async (req, res) => {
     } catch (err) {
         res.status(500)
             .json({
-                message: "Internal server errror",
+                message: "Internal server error",
                 success: false
             })
     }
 }
+// ------------------------ log in ------------------------
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await UserModel.findOne({ email });
+        const errorMsg = 'Auth failed email or password is wrong';
         if (!user) {
-            return res.status(401)
-                .json({ message: 'Invalid credentials', success: false });
+            return res.status(403)
+                .json({ message: errorMsg, success: false });
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401)
-                .json({ message: 'Invalid credentials', success: false });
+        const isPassEqual = await bcrypt.compare(password, user.password);
+        if (!isPassEqual) {
+            return res.status(403)
+                .json({ message: errorMsg, success: false });
         }
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
+        const jwtToken = jwt.sign(
+            { email: user.email, _id: user._id },
+            process.env.Jwt_Secret,
+            { expiresIn: '24h' }
+        )
+
         res.status(200)
             .json({
-                message: "Login successful",
+                message: "Login Success",
                 success: true,
-                token: token,
-                user: { id: user._id, name: user.name, email: user.email }
+                jwtToken,
+                email,
+                name: user.name
             })
     } catch (err) {
         res.status(500)
             .json({
-                message: "Internal server error",
+                message: "Internal server errror",
                 success: false
             })
     }
@@ -70,4 +79,13 @@ const login = async (req, res) => {
 module.exports = {
     signup,
     login
-}
+ }
+// Payload
+// Data inside the token (user info, etc.)
+
+
+// User Signup/Login -> Server validates -> Server creates JWT -> Sends JWT to client
+// Client stores JWT
+// Client sends JWT with each protected request
+// Server verifies JWT -> If valid, allow access
+// JWT is stateless, no need to store on server

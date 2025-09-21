@@ -39,7 +39,7 @@ const handleChange=(e)=>{
             return handleError('Password must be at least 6 characters long')
         }
         try {
-            const url = `https://auth-mern-app-api-eight.vercel.app/signup`;
+            const url = `http://localhost:3000/auth/signup`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
